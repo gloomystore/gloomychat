@@ -1,0 +1,20 @@
+@import './var.scss';
+.chat-box {
+  width: 50%;
+  
+  padding: 15px;
+  .chat-box__division {
+    display: block;
+    background: url('/images/bg/galaxy.webp');
+    border-radius: 10px;
+    padding: 15px;
+    h3,h4,p {
+      color: $-c-white;
+    }
+    h3 {
+      font-size: 20px;
+    }
+    p {
+    }
+  }
+}
