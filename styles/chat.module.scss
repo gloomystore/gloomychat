@@ -8,13 +8,30 @@
     background: url('/images/bg/galaxy.webp');
     border-radius: 10px;
     padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     h3,h4,p {
       color: $-c-white;
     }
     h3 {
       font-size: 20px;
     }
-    p {
+    > div {
+      width: calc(100% - 80px);
+      padding: 0 10px;
+      &:first-of-type {
+        width: 80px;
+        height: 80px;
+        padding: 10px;
+        img {
+          display: block;
+          width: 60px;
+          height: 60px;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+      }
     }
   }
 }
