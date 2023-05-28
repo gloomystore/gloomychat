@@ -1,15 +1,11 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## webRTC를 이용한 실시간 화상통화 & 채팅!
 
-First, run the development server:
+아래 명령어로 시작할 수는 있지만, 시크릿 키가 없어서 아마 정상 동작은 못하실 겁니다.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
