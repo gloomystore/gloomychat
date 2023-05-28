@@ -6,8 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { scrollBlock } from "@/store/stores/scrollBlock";
 import Image from 'next/image'
 // import Link from 'next/link'
+import { signIn, signOut } from 'next-auth/react'
 
-export default function NavBar() {
+export default function NavBar({isLogin}) {
+ 
+
   // const router = useRouter()
   const [navActive,setNavActive] = useState(false)
   function moveScroll(id){
@@ -60,17 +63,22 @@ export default function NavBar() {
           </a>
         </h2>
         <ul className={`${styles['nav-list']} onlyPC`}>
+          {
+            isLogin ?
+            <>
+            <li>
+            <button onClick={() => { signOut() }}>Logout</button>
+            </li>
+            </>
+            :
+            <>
+            <li>
+            <button onClick={() => { signIn() }}>Login</button>
+            </li>
+            </>
+          }
           <li>
-            <a href='#!' onClick={()=>moveScroll('intro')}>Intro</a>
-          </li>
-          <li>
-            <a href='#!' onClick={()=>moveScroll('skill')}>Skill</a>
-          </li>
-          <li>
-            <a href='#!' onClick={()=>moveScroll('portfolio')}>Portfolio</a>
-          </li>
-          <li>
-            <a href='#!' onClick={()=>moveScroll('contact')}>Contact</a>
+            <button onClick={()=>moveScroll('portfolio')}>My Page</button>
           </li>
         </ul>
         <div className={`${styles['nav-inner']} onlySP`}>
@@ -82,16 +90,16 @@ export default function NavBar() {
           <article className={navActive ? `${styles['nav-menu']} ${styles['active']}` : `${styles['nav-menu']}`}>
             <ul className={`${styles['nav-list-mobile']}`}>
               <li>
-                <a href='#!' onClick={()=>moveScroll('intro')}>Intro</a>
+                <button onClick={()=>moveScroll('intro')}>Intro</button>
               </li>
               <li>
-                <a href='#!' onClick={()=>moveScroll('skill')}>Skill</a>
+                <button onClick={()=>moveScroll('skill')}>Skill</button>
               </li>
               <li>
-                <a href='#!' onClick={()=>moveScroll('portfolio')}>Portfolio</a>
+                <button onClick={()=>moveScroll('portfolio')}>Portfolio</button>
               </li>
               <li>
-                <a href='#!' onClick={()=>moveScroll('contact')}>Contact</a>
+                <button onClick={()=>moveScroll('contact')}>Contact</button>
               </li>
             </ul>
           </article>

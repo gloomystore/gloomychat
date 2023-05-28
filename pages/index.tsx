@@ -5,8 +5,23 @@ import Footer from '@/components/Footer'
 import styles from '@/styles/chat.module.scss'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 export default function Home() {
+  // nextauth 로그인
+ const [isLogin,setIsLogin] = useState(false)
+ let session  = useSession();
+
+ useEffect(()=>{
+   if (session.status === 'authenticated') {
+     console.log(session)
+     setIsLogin(true)
+   } else {
+     setIsLogin(false)
+   }
+ },[session])
+
+  //fade효과
   const activeFadeElms = [
     useRef(null),
     useRef(null),
@@ -41,12 +56,12 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <NavBar />
+      <NavBar isLogin={isLogin} />
       <div className="wrap">
         <header className="img-box header mb-100 hp-300">
           <div className="img-box--words">
             <h1>Gloomy Chat</h1>
-            <p>Video &amp; Text Chatting</p>
+            <p>Video Call &amp; Text Chat</p>
           </div>
         </header>
 
@@ -65,40 +80,50 @@ export default function Home() {
           <h2 className="title-02" id="intro">chat rooms</h2>
 
           <div className={`ly-flex-wrap mt-50`}>
-            <article className={`${styles['chat-box']}`}>
-              <Link href={''} className={`${styles['chat-box__division']}`}>
-                <div>
-                  <Image src={require("/public/images/DSC06837_2.webp")} alt="profile" width={60} height={60} />
-                </div>
-                <div>
-                  <div className="ly-flex-wrap justify-between align-center">
-                    <h3>바보</h3>
-                    <p>1년 전</p>
-                  </div>
-                  <div className="ly-flex-wrap justify-between align-center mt-10">
-                    <h4>대화상대: admin2</h4>
-                    <p>마지막 메세지: 안녕~</p>
-                  </div>
-                </div>
-              </Link>
-            </article>
-            <article className={`${styles['chat-box']}`}>
-              <Link href={''} className={`${styles['chat-box__division']}`}>
-                <div>
-                  <Image src={require("/public/images/DSC06837_2.webp")} alt="profile" width={60} height={60} />
-                </div>
-                <div>
-                  <div className="ly-flex-wrap justify-between align-center">
-                    <h3>바보</h3>
-                    <p>1년 전</p>
-                  </div>
-                  <div className="ly-flex-wrap justify-between align-center mt-10">
-                    <h4>대화상대: admin2</h4>
-                    <p>마지막 메세지: 안녕~</p>
-                  </div>
-                </div>
-              </Link>
-            </article>
+            {
+              isLogin ?
+              <>
+                <article className={`${styles['chat-box']}`}>
+                  <Link href={''} className={`${styles['chat-box__division']}`}>
+                    <div>
+                      <Image src={require("/public/images/DSC06837_2.webp")} alt="profile" width={60} height={60} />
+                    </div>
+                    <div>
+                      <div className="ly-flex-wrap justify-between align-center">
+                        <h3>바보</h3>
+                        <p>1년 전</p>
+                      </div>
+                      <div className="ly-flex-wrap justify-between align-center mt-10">
+                        <h4>대화상대: admin2</h4>
+                        <p>마지막 메세지: 안녕~</p>
+                      </div>
+                    </div>
+                  </Link>
+                </article>
+                <article className={`${styles['chat-box']}`}>
+                  <Link href={''} className={`${styles['chat-box__division']}`}>
+                    <div>
+                      <Image src={require("/public/images/DSC06837_2.webp")} alt="profile" width={60} height={60} />
+                    </div>
+                    <div>
+                      <div className="ly-flex-wrap justify-between align-center">
+                        <h3>바보</h3>
+                        <p>1년 전</p>
+                      </div>
+                      <div className="ly-flex-wrap justify-between align-center mt-10">
+                        <h4>대화상대: admin2</h4>
+                        <p>마지막 메세지: 안녕~</p>
+                      </div>
+                    </div>
+                  </Link>
+                </article>
+              </>
+              :
+              <>
+                로그인해주세요
+              </>
+            }
+            
          
           </div>
    
@@ -116,7 +141,7 @@ export default function Home() {
           onMouseEnter={()=>setActiveBlink([activeBlink[0],true])}
           onMouseLeave={()=>setActiveBlink([activeBlink[0],false])}
         >
-          <h2 className="title-02" id="skill">Skill</h2>
+          <h2 className="title-02" id="skill">Used Stack</h2>
           <h3 className="title-03">FE Stack</h3>
           <div className="table">
             <table summary="summary">
@@ -142,21 +167,8 @@ export default function Home() {
                   </td>
                   <th scope="row">
                     <div className="th-wrap">
-                      <Image src={require("/public/images/icon/css.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">CSS3</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    거의 모든 스타일을 자유자재로 다룰 수 있습니다. 주로 BEM 방법으로 클래스명을 작성합니다.
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
                       <Image src={require("/public/images/icon/sass3.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">SASS</p>
+                      <p className="th-title">SASS&amp;CSS</p>
                     </div>
                   </th>
                   <td>
@@ -164,18 +176,8 @@ export default function Home() {
                       반복문과 변수사용 및 코드 중복 방지를 위한 모듈입니다. 체계적으로 SASS를 작성할 경우 다크모드나 기타 상황에서 쉽게 color를 변경 가능합니다. SCSS 문법을 사용합니다.
                     </p>
                   </td>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/bootstrap2.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Bootstrap</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                      스타일시트를 처음부터 제작하기 부담스러운 토이 프로젝트에 가끔 사용합니다.
-                    </p>
-                  </td>
                 </tr>
+                
                 <tr>
                   <th scope="row">
                     <div className="th-wrap">
@@ -186,30 +188,6 @@ export default function Home() {
                   <td>
                     <p className="td-desc onlyTab">
                       화살표함수, 스프레드연산자, const, let 등을 사용하며, this의 바인딩과 TDZ에 유의하며 스크립트를 작성합니다. ES5 및 ES6 스펙의 스크립트에 대응합니다. 바벨을 사용하지 않는 환경의 경우, 또한 ie까지 대응하는 경우 ES5 스펙으로 작성합니다. 이벤트 루프를 이해하며, 순서에 맞는 스크립트 작성에 유의합니다.
-                    </p>
-                  </td>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/React_logo_wordmark2.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">React.js</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                      함수형 컴포넌트를 사용합니다. 주로 관심사별로 묶는 스크립트를 작성하며, 개발팀의 스타일에 따라서 hook끼리 묶는 경우도 있습니다. 생명주기를 이해하여, 기능이 정확하게, 또 알맞는 타이밍에 작동하도록 스크립트를 작성합니다. 모든 동작은 state로 제어합니다.
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/vue.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Vue.js</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                      composition api 및 options api를 사용합니다. 주로 후자로 개발이 진행되나, 새 서버 및 새 프로젝트에서 관심사별로 기능을 묶는 요청이 내려올 경우 전자로 진행할 때도 있습니다. react와 마찬가지로, state로 모든 동작을 제어합니다. vue2 및 vue3 모두 대응합니다.
                     </p>
                   </td>
                   <th scope="row">
@@ -248,25 +226,7 @@ export default function Home() {
                     </p>
                   </td>
                 </tr>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/jquery.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">JQuery</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    legacy 프로젝트 외에는 크게 사용할 일이 없으나, 종종 jsp로 제작된 프로젝트에 jquery가 사용되고 있어 이 때 사용합니다. 기본적인 ui메소드와 ajax를 사용합니다.
-                    </p>
-                  </td>
-                  <th scope="row">
-
-                  </th>
-                  <td>
-                   
-                  </td>
-                </tr>
+                
               </tbody>
             </table>
           </div>
@@ -308,13 +268,13 @@ export default function Home() {
                 <tr>
                   <th scope="row">
                     <div className="th-wrap">
-                      <Image src={require("/public/images/icon/mysql.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">MySQL</p>
+                      <Image src={require("/public/images/icon/nodejs.png")} width="60" height="60" alt="skills" className="th-img" />
+                      <p className="th-title">Node.js</p>
                     </div>
                   </th>
                   <td>
                     <p className="td-desc onlyTab">
-                    SELECT, UPDATE, WHERE 외 간단한 CRUD를 할 수 있습니다.
+                    express를 사용하여, 클라이언트에서 오는 각종 요청에 대해 처리합니다. 기본적으로는 PHP와 같이 간단한 CRUD를 처리하며, 클라이언트사이드 언어인 자바스크립트로 서버사이드까지 다룰 수 있는 점에 주목하고 있습니다.
                     </p>
                   </td>
                   <th scope="row">
@@ -326,183 +286,6 @@ export default function Home() {
                   <td>
                     <p className="td-desc onlyTab">
                     데이터가 json 그 자체이며, nodejs서버 상에서 객체를 자유롭게 다룰 수 있기 때문에 SQL과 마찬가지로 간단한 CRUD가 가능합니다.
-                    </p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h3 className="title-03">APP Stack</h3>
-          <div className="table">
-            <table summary="summary">
-              <caption></caption>
-              <colgroup>
-                <col />
-                <col />
-                <col />
-                <col />
-              </colgroup>
-              <tbody>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/RN.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">React Native</p>
-                    </div>
-                  </th>
-                  <td colSpan={3}>
-                    <p className="td-desc onlyTab">
-                    React Native 컴포넌트를 사용하여 간단한 UI제작이 가능합니다.
-                    </p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h3 className="title-03">Collaboration</h3>
-          <div className="table">
-            <table summary="summary">
-              <caption></caption>
-              <colgroup>
-                <col />
-                <col />
-                <col />
-                <col />
-              </colgroup>
-              <tbody>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/git.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Git</p>
-                    </div>
-                  </th>
-                  <td rowSpan={3}>
-                    <p className="td-desc onlyTab">
-                    github앱이나 git bash, 혹은 fork로 작업물을 관리합니다. 되도록 conflict가 일어나지 않도록 최신 소스를 주기적으로 pull 합니다. 
-                    </p>
-                  </td>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/jira.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Jira</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    모든 작업에 대해 Jira에 내용을 작성 후 진행합니다. 전사적으로 HR이 어떻게 관리되는지 알기 쉽게 하기 위해 되도록 자세한 내용을 작성해 넣어둡니다.
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/git4.png")} width="60" height="60" alt="skills" className="th-img" />
-                        <p className="th-title">Github</p>
-                    </div>
-                  </th>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/confluence.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Confluence</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    프론트 소스의 관리를 위해, 중요 내용은 Confluence에 작성해둡니다.
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/gitlab2.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Gitlab</p>
-                    </div>
-                  </th>
-                  {/* <td>
-                    <p className="td-desc onlyTab">
-                      웹표준 및 웹접근성을 준수하며, 최상의 SEO를 위한 태그를 작성합니다. 검색노출을 위한 적절한 타이틀 사용과 최적의 HTML구조, 스크린리더를 위한 정확한 태그사용 등 모든 면에 대응합니다. 
-                    </p>
-                  </td> */}
-                  <th scope="row">
-                  </th>
-                  <td>
-                  </td>
-                </tr>
-                
-              </tbody>
-            </table>
-          </div>
-          <h3 className="title-03">Design Stack</h3>
-          <div className="table">
-            <table summary="summary">
-              <caption></caption>
-              <colgroup>
-                <col />
-                <col />
-                <col />
-                <col />
-              </colgroup>
-              <tbody>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/photoshop2.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Photoshop</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    사진사, 디자이너 업무 등으로 포토샵은 10년 이상 다루어 전문가 수준입니다.
-                    </p>
-                  </td>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/Illustrator2.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Illustrator</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    벡터그래픽 제작 시 사용합니다.
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/xd2.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">XD</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    주로 웹사이트/앱 UI제작 시 사용합니다. 금융권 프로젝트에서 UI제작 시 사용했습니다.
-                    </p>
-                  </td>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/zeplin.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Zeplin</p>
-                    </div>
-                  </th>
-                  <td>
-                    <p className="td-desc onlyTab">
-                    디자이너들이 작업해놓은 UI를 보고 개발에 옮깁니다.
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div className="th-wrap">
-                      <Image src={require("/public/images/icon/figma2.png")} width="60" height="60" alt="skills" className="th-img" />
-                      <p className="th-title">Figma</p>
-                    </div>
-                  </th>
-                  <td colSpan={3}>
-                    <p className="td-desc onlyTab">
-                    기능과 UI가 XD와 흡사하여, 어렵지 않게 대부분의 기능을 다룰 수 있습니다.
                     </p>
                   </td>
                 </tr>

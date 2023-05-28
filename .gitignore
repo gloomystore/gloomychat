@@ -40,3 +40,6 @@ next-env.d.ts
 .env.dev
 .env.stg
 .env.prod
+.env.development
+.env.test
+.env.production
