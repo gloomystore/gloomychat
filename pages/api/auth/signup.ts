@@ -1,4 +1,4 @@
-import { connectDB } from "@/util/db"
+import { connectDB } from "../util/db"
 import { NextApiRequest, NextApiResponse } from "next"
 import bcrypt from 'bcrypt'
 
@@ -9,7 +9,7 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
     console.log(hash)
     req.body.password = hash;
 
-    const db = (await connectDB).db('youngBoard');
+    const db = (await connectDB).db('gloomychat');
     const already = await db.collection('user_cred').findOne({email:req.body.email})
     if(already) return res.status(200).json('code1') // 이미 계정 존재
     await db.collection('user_cred').insertOne(req.body)

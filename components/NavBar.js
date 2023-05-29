@@ -1,6 +1,6 @@
 
 import styles from '@/styles/NavBar.module.scss'
-// import {useRouter} from 'next/router'
+import {useRouter} from 'next/router'
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { scrollBlock } from "@/store/stores/scrollBlock";
@@ -9,8 +9,6 @@ import Image from 'next/image'
 import { signIn, signOut } from 'next-auth/react'
 
 export default function NavBar({isLogin}) {
- 
-
   // const router = useRouter()
   const [navActive,setNavActive] = useState(false)
   function moveScroll(id){
@@ -44,10 +42,10 @@ export default function NavBar({isLogin}) {
     }
   }, [navActive,scrollBlockState])
   /** //redux */
-
+  const router = useRouter();
   function goHome(){
     if(window.scrollY < 2) {
-      window.location.reload(false)
+      router.push('/')
     } else {
       window.scrollTo(0,0); setNavActive(false)
     }
@@ -89,17 +87,23 @@ export default function NavBar({isLogin}) {
           </button>
           <article className={navActive ? `${styles['nav-menu']} ${styles['active']}` : `${styles['nav-menu']}`}>
             <ul className={`${styles['nav-list-mobile']}`}>
+            {
+            isLogin ?
+            <>
+            <li>
+            <button onClick={() => { signOut() }}>Logout</button>
+            </li>
+            </>
+            :
+            <>
+            <li>
+            <button onClick={() => { signIn() }}>Login</button>
+            </li>
+            </>
+          }
+             
               <li>
-                <button onClick={()=>moveScroll('intro')}>Intro</button>
-              </li>
-              <li>
-                <button onClick={()=>moveScroll('skill')}>Skill</button>
-              </li>
-              <li>
-                <button onClick={()=>moveScroll('portfolio')}>Portfolio</button>
-              </li>
-              <li>
-                <button onClick={()=>moveScroll('contact')}>Contact</button>
+                <button onClick={()=>moveScroll('contact')}>My Page</button>
               </li>
             </ul>
           </article>

@@ -6,21 +6,92 @@ import styles from '@/styles/chat.module.scss'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import axios from 'axios';
+import {gloomyDate} from 'gloomydate'
 
 export default function Home() {
   // nextauth 로그인
  const [isLogin,setIsLogin] = useState(false)
  let session  = useSession();
 
+ // 로그인하면 채팅 데이터 로딩
+ const [chatData, setChatData]:[{
+    _id: string,
+    uuid: string,
+    name: string,
+    host: string,
+    guest: string,
+    timestamp: string,
+    time: string,
+    partner: string,
+    calDate: string,
+    photo: string,
+    message: string,
+  }[],Function] = useState([])
+
+  // 내 채팅 데이터 가져오기
+  const fetchChatrooms = async (myId:string) => {
+    try {
+      const res = await axios.get(`/api/chatrooms/get/${myId}`);
+      return [
+        ...res.data,
+      ]
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // 해당 채팅의 마지막 대화 가져오기
+  const getLastChat = async(chatArray:any[],myId:string) => {
+    const arr = [];
+    console.log(chatArray)
+    for(let data of chatArray){
+      const uuid = data.uuid
+      const getChat = await fetchLastChat(uuid)
+      const partner = data.host === myId ? data.guest : data.host;
+      const arrayPhoto = await fetchPartnerPhoto(partner)
+      arr.push({...data,message:getChat, partner, calDate:gloomyDate.date(data.time),photo:arrayPhoto })
+    }
+    return arr
+  };
+  const fetchLastChat = async(uuid:string) => {
+    try {
+      const res = await axios.get(`/api/chats/get/${uuid}/last`)
+      if(res.data){
+        return res.data.lastChat.msg
+      }
+    } catch (err) {
+      console.log(err)
+      return null
+    }
+  }
+  // 채팅상대의 프로필 사진 가져오기
+  const fetchPartnerPhoto = async(partner:string) => {
+    try {
+      const res = await axios.get(`/api/photo/get/${encodeURIComponent(partner)}`)
+      if(res.data){
+        return res.data
+      }
+    } catch (err) {
+      console.log(err)
+      return null
+    }
+  }
+
+
  useEffect(()=>{
-   if (session.status === 'authenticated') {
-     console.log(session)
-     setIsLogin(true)
+  if (session.status === 'authenticated') {
+    setIsLogin(true)
+    const myEmail = session.data.user?.email as string;
+    (async function(){
+      const chatArray = await fetchChatrooms(myEmail) as any[];
+      const chatArrayGetDate = await getLastChat(chatArray,myEmail);
+      if(chatArrayGetDate.length>0) setChatData(chatArrayGetDate)
+    })()
    } else {
      setIsLogin(false)
    }
  },[session])
-
   //fade효과
   const activeFadeElms = [
     useRef(null),
@@ -40,7 +111,6 @@ export default function Home() {
   useEffect(() => {
     onScroll();
     window.addEventListener("scroll", onScroll);
-  
     return () => {
       window.removeEventListener("scroll", onScroll);
     }
@@ -79,44 +149,38 @@ export default function Home() {
         >
           <h2 className="title-02" id="intro">chat rooms</h2>
 
-          <div className={`ly-flex-wrap mt-50`}>
+          <div className={`ly-flex-wrap mt-50 ${styles['chat-box__wrap']}`}>
             {
               isLogin ?
+
+              chatData.length > 0 ?
               <>
-                <article className={`${styles['chat-box']}`}>
-                  <Link href={''} className={`${styles['chat-box__division']}`}>
+                {
+                  chatData.map((chat,index) => {
+                  return <article key={'chat'+index.toString()} className={`${styles['chat-box']}`}>
+                  <Link href={`/chat/${chat.uuid}`} className={`${styles['chat-box__division']}`}>
                     <div>
-                      <Image src={require("/public/images/DSC06837_2.webp")} alt="profile" width={60} height={60} />
+                      <img src={chat.photo} alt="profile" width={60} height={60} />
                     </div>
                     <div>
                       <div className="ly-flex-wrap justify-between align-center">
-                        <h3>바보</h3>
-                        <p>1년 전</p>
+                        <h3>{chat.name}</h3>
+                        <p className='mt-10'>{chat.calDate}</p>
                       </div>
-                      <div className="ly-flex-wrap justify-between align-center mt-10">
-                        <h4>대화상대: admin2</h4>
-                        <p>마지막 메세지: 안녕~</p>
+                      <div className="mt-10">
+                        <h4>대화상대: {chat.partner}</h4>
+                        <p className='mt-10'>마지막 메세지: {chat.message}</p>
                       </div>
                     </div>
                   </Link>
                 </article>
-                <article className={`${styles['chat-box']}`}>
-                  <Link href={''} className={`${styles['chat-box__division']}`}>
-                    <div>
-                      <Image src={require("/public/images/DSC06837_2.webp")} alt="profile" width={60} height={60} />
-                    </div>
-                    <div>
-                      <div className="ly-flex-wrap justify-between align-center">
-                        <h3>바보</h3>
-                        <p>1년 전</p>
-                      </div>
-                      <div className="ly-flex-wrap justify-between align-center mt-10">
-                        <h4>대화상대: admin2</h4>
-                        <p>마지막 메세지: 안녕~</p>
-                      </div>
-                    </div>
-                  </Link>
-                </article>
+                  })
+                }
+                
+              </>
+              :
+              <>
+              채팅 기록이 없습니다.
               </>
               :
               <>

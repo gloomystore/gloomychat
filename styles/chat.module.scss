@@ -1,75 +1,91 @@
 @import './var.scss';
-.chat-box {
-  width: 50%;
-  
-  padding: 15px;
-  .chat-box__division {
-    display: block;
-    background: url('/images/bg/galaxy.webp');
-    border-radius: 10px;
+.chat-box__wrap {
+  @media(max-width:1200px){
+    display: block!important;
+  }
+  .chat-box {
+    width: 50%;
     padding: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    h3,h4,p {
-      color: $-c-white;
+    @media(max-width:1200px){
+      width: 100%;
+      padding: 10px 0;
     }
-    h3 {
-      font-size: 20px;
-    }
-    > div {
-      width: calc(100% - 80px);
-      padding: 0 10px;
-      &:first-of-type {
-        width: 80px;
-        height: 80px;
-        padding: 10px;
-        img {
-          display: block;
-          width: 60px;
-          height: 60px;
-          border-radius: 8px;
-          overflow: hidden;
+    .chat-box__division {
+      display: block;
+      background: url('/images/bg/galaxy.webp');
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      @media(max-width:1200px){
+        padding: 10px 0;
+      }
+      h3,h4,p {
+        color: $-c-white;
+      }
+      h3 {
+        font-size: 20px;
+      }
+      h4 {
+        @media(max-width:1200px){
+          margin-bottom: 15px;
+        }
+      }
+      > div {
+        width: calc(100% - 80px);
+        padding: 0 10px;
+        &:first-of-type {
+          width: 80px;
+          height: 80px;
+          padding: 10px;
+          img {
+            display: block;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+          }
         }
       }
     }
-  }
-  .chat-box__division--form {
-    display: block;
-    background: url('/images/bg/galaxy.webp');
-    border-radius: 10px;
-    padding: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    > div {
-      width: 100%;
-      text-align: center;
-      input {
-        display: inline-block;
-        width: 300px;
+    .chat-box__division--form {
+      display: block;
+      background: url('/images/bg/galaxy.webp');
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      > div {
+        width: 100%;
+        text-align: center;
+        input {
+          display: inline-block;
+          width: 300px;
+          background: rgba(200, 200, 200, 0.75);
+          border: none;
+          border-radius: 5px;
+          font-size: 20px;
+          padding: 5px 10px;
+          transition: all 0.5s ease-in-out 0s, filter 0.2s ease-in-out 0s;
+          &:focus {
+            filter: drop-shadow(8px 5px 4px #4444dd);
+          }
+        }
+      }
+      button {
         background: rgba(200, 200, 200, 0.75);
+        filter: drop-shadow(0px 0px 4px #4444dd);
         border: none;
         border-radius: 5px;
         font-size: 20px;
         padding: 5px 10px;
-        transition: all 0.5s ease-in-out 0s, filter 0.2s ease-in-out 0s;
-        &:focus {
-          filter: drop-shadow(8px 5px 4px #4444dd);
+        font-weight: bold;
+        &:hover {
+          cursor: pointer;
         }
-      }
-    }
-    button {
-      background: rgba(200, 200, 200, 0.75);
-      filter: drop-shadow(0px 0px 4px #4444dd);
-      border: none;
-      border-radius: 5px;
-      font-size: 20px;
-      padding: 5px 10px;
-      font-weight: bold;
-      &:hover {
-        cursor: pointer;
       }
     }
   }

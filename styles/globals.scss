@@ -373,8 +373,8 @@ b, strong {
   // background: grey;
   background: rgba(200,200,200,0.75);
   @media(max-width: $breakPoint) {
-    padding: 18px 18px 43px;
-    max-width: calc(100vw - 48px);
+    padding: 18px 10px 43px;
+    max-width: calc(100vw - 20px);
   }
 }
 .hidden {width: 0; height: 0; opacity: 0; user-select: none; overflow: hidden;}

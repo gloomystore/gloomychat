@@ -1,0 +1,18 @@
+[
+  {
+    "uuid":"20230528184020111-15415",
+    "name":"채팅방1이야!",
+    "host":"serenity90sp@gmail.com",
+    "guest":"pikchu3333@gmail.com",
+    "timestamp":"20230528184020111",
+    "time":"2023-05-28T18:40:20"
+  },
+  {
+    "uuid":"20230528184020111-11111",
+    "name":"채팅방2야! 제목!",
+    "host":"serenity90sp@gmail.com",
+    "guest":"admin",
+    "timestamp":"20230210153020111",
+    "time":"2022-10-11T13:30:20"
+  }
+]
