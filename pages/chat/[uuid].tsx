@@ -3,22 +3,19 @@ import Image from 'next/image'
 import NavBar from '@/components/NavBar'
 import Footer from '@/components/Footer'
 import styles from '@/styles/chat.module.scss'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import axios from 'axios';
-import { GetServerSideProps } from 'next';
+import { ParsedUrlQuery } from 'querystring';
+import { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 
 type Props = {
   uuid: string;
 };
 
-const DynamicPage = ({ uuid }: Props) => {
-  return <div>UUID: {uuid}</div>;
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
-  const { uuid } = ctx.params;
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx: GetServerSidePropsContext<ParsedUrlQuery>) => {
+  const { uuid } = ctx.params || {};
 
   // UUID 값에 대한 추가 로직 수행
 
@@ -26,11 +23,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     props: {
       uuid,
     },
-  };
+  } as GetServerSidePropsResult<Props>;;
 };
 
 
-export default function chat({uuid}) {
+export default function chat({uuid}:{uuid:string}) {
   // nextauth 로그인
  const [isLogin,setIsLogin] = useState(false)
  let session  = useSession();
@@ -43,9 +40,6 @@ export default function chat({uuid}) {
     guest: string,
     timestamp: string,
     time: string,
-    partner: string,
-    photo: string,
-    message: string,
   },Function] = useState({
     _id: '',
     uuid: '',
@@ -54,10 +48,39 @@ export default function chat({uuid}) {
     guest: '',
     timestamp: '',
     time: '',
-    partner: '',
-    photo: '',
-    message: '',
   })
+
+  // 나의 데이터 (사진, 이름)
+  const [myData,setMyData]:[{
+    name:string,
+    email:string,
+    photo:string,
+  },Function] = useState({
+    name:'',
+    email:'',
+    photo:'',
+  })
+
+  // 상대방 데이터 (사진, 이름)
+  const [partnerData,setPartnerData]:[{
+    name:string,
+    email:string,
+    photo:string,
+  },Function] = useState({
+    name:'',
+    email:'',
+    photo:'',
+  })
+  // 실제 채팅들
+  const [chats,setChats]:[{
+    email:string,
+    msg:string,
+    time:number,
+  }[],Function] = useState([{
+    email:'',
+    msg:'',
+    time:0,
+  }])
 
   // 내 채팅 데이터 가져오기
   const fetchChatroomData = async () => {
@@ -78,17 +101,33 @@ export default function chat({uuid}) {
     }
   };
 
+  // 유저의 정보 가져오기
+  const getUserData = async (email:string) => {
+    try {
+      const res = await axios.get(`/api/users/get/${email}`);
+      return res.data
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   // 최초 마운트시, 로그인 상태면 채팅 데이터를 불러옴
  useEffect(()=>{
   if (session.status === 'authenticated') {
     setIsLogin(true);
-    // const myEmail = session.data.user?.email as string;
     (async function(){
       const chatroomData = await fetchChatroomData() as any;
       const chatsData = await fetchChatsData() as any;
-      console.log(chatroomData)
-      console.log(chatsData)
+      const myEmail = session.data.user?.email as string;
+      const partnerEmail = chatroomData.host === myEmail ? chatroomData.guest : chatroomData.host
       setChatData(chatroomData)
+      const myData = await getUserData(myEmail)
+      const partnerData = await getUserData(partnerEmail)
+      setMyData(myData)
+      setPartnerData(partnerData)
+      setChats(chatsData.chat)
+      console.log(chatsData)
+      console.log(myData)
     })()
    } else if(session.status === 'loading') {
     return
@@ -97,6 +136,17 @@ export default function chat({uuid}) {
     window.location.href = '/'
    }
  },[session])
+
+  // 채팅 보내기 기능 관련
+  const [inputValue, setInputValue] = useState('')
+  function onInput(e: React.FormEvent<HTMLInputElement>){
+    const val = e.currentTarget.value
+    setInputValue(val)
+  }
+  function sendMessage(e){
+    console.log(e.target)
+    console.log(inputValue)
+  }
 
   return (
     <>
@@ -108,51 +158,71 @@ export default function chat({uuid}) {
       </Head>
       <NavBar isLogin={isLogin} />
       <div className="wrap">
-        <header className="img-box header mb-100 hp-300">
+        {/* <header className="img-box header mb-100 hp-300">
           <div className="img-box--words">
             <h1>Gloomy Chat</h1>
             <p>Video Call &amp; Text Chat</p>
           </div>
-        </header>
+        </header> */}
 
-       <section
-          className="section fadeInUp active blink"
-        >
-          {
-          chatData ? 
-          <>
-            <h2 className="title-02" id="intro">{chatData.name}</h2>
-            <div className={`ly-flex-wrap mt-50 ${styles['chat-box__wrap']}`}>
-              <article className={`${styles['chat-box']}`}>
-                <Link href={`/chat/${chatData.uuid}`} className={`${styles['chat-box__division']}`}>
-                  <div>
-                    <img src={chatData.photo} alt="profile" width={60} height={60} />
-                  </div>
-                  <div>
-                    <div className="ly-flex-wrap justify-between align-center">
-                      <h3>{chatData.name}</h3>
-                      <p>{chatData.time}</p>
+       <section className="section fadeInUp active blink mt-0 pb-10">
+          <h2 className="title-03 mt-0" id="intro">{chatData.name}</h2>
+          <div className={`mt-0 ${styles['chat-box']}`}>
+            <article className={`${styles['video-box']}`}>
+              <video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" 
+                // autoPlay
+              />
+            </article>
+            <article className={`${styles['chat-box__chats']} mt-30`}>
+            {
+              chats.length > 0 &&
+
+              chats.map((chat,index) => 
+              chat.email === myData.email ? 
+              <div className={`${styles['chats']} ${styles['right']}`} key={'chat'+index.toString()}>
+                  <div className={`${styles['chat-box__division']}`}>
+                    <a href="#!" title='프로필 보기'>
+                      <img src={myData.photo} alt="profile" />
+                    </a>
+                    <div className={`${styles['chat-box__wrap']}`}>
+                      <strong>{myData.name}</strong>
+                      <div className={`${styles['chatting']}`}>
+                        <p>{chat.msg}</p>
+                      </div>
                     </div>
-                    <div className="ly-flex-wrap justify-between align-center mt-10">
-                      <h4>대화상대: {chatData.partner}</h4>
-                      <p>마지막 메세지: {chatData.message}</p>
+                  </div>
+                </div>
+              :
+              <div className={`${styles['chats']}`} key={'chat'+index.toString()}>
+                  <div className={`${styles['chat-box__division']}`}>
+                    <a href="#!" title='프로필 보기'>
+                      <img src={partnerData.photo} alt="profile" />
+                    </a>
+                    <div className={`${styles['chat-box__wrap']}`}>
+                      <strong>{partnerData.name}</strong>
+                      <div className={`${styles['chatting']}`}>
+                        <p>{chat.msg}</p>
+                      </div>
                     </div>
                   </div>
-                </Link>
-              </article>
-            </div>
-           </>
-          :
-          <>
-          채팅 기록이 없습니다.
-          </>
-           }
+                </div>
+              ) 
+            }
+            {
+              chats.length === 0 && 
+              <>
+                채팅 기록이 없습니다.
+              </>
+            }
+            </article>
+            <article className={`${styles['chat-box__input']} mt-10 pl-10 pr-10`}>
+              <input type="text" onChange={onInput} value={inputValue} onKeyDown={e=> e.key === 'Enter' && sendMessage(e)} />
+              <button onClick={sendMessage}>보내기</button>
+            </article>
+          </div>
         </section>
-
-      
-
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </>
   )
 }

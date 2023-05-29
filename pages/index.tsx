@@ -68,9 +68,9 @@ export default function Home() {
   // 채팅상대의 프로필 사진 가져오기
   const fetchPartnerPhoto = async(partner:string) => {
     try {
-      const res = await axios.get(`/api/photo/get/${encodeURIComponent(partner)}`)
+      const res = await axios.get(`/api/users/get/${encodeURIComponent(partner)}`)
       if(res.data){
-        return res.data
+        return res.data.photo
       }
     } catch (err) {
       console.log(err)
@@ -149,7 +149,7 @@ export default function Home() {
         >
           <h2 className="title-02" id="intro">chat rooms</h2>
 
-          <div className={`ly-flex-wrap mt-50 ${styles['chat-box__wrap']}`}>
+          <div className={`ly-flex-wrap mt-50 ${styles['chatroom-box__wrap']}`}>
             {
               isLogin ?
 
@@ -157,8 +157,8 @@ export default function Home() {
               <>
                 {
                   chatData.map((chat,index) => {
-                  return <article key={'chat'+index.toString()} className={`${styles['chat-box']}`}>
-                  <Link href={`/chat/${chat.uuid}`} className={`${styles['chat-box__division']}`}>
+                  return <article key={'chat'+index.toString()} className={`${styles['chatroom-box']}`}>
+                  <Link href={`/chat/${chat.uuid}`} className={`${styles['chatroom-box__division']}`}>
                     <div>
                       <img src={chat.photo} alt="profile" width={60} height={60} />
                     </div>

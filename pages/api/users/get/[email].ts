@@ -9,7 +9,7 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse) {
     const db = (await connectDB).db('gloomychat')
     const result = await db.collection('users').findOne({email})
 
-    res.status(200).json(result?.image)
+    res.status(200).json({name:result?.name,email:result?.email,photo:result?.image})
   } else {
     res.status(500).json('code1')
   }

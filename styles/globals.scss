@@ -18,8 +18,10 @@ html {
 }
 body {
   background: url('/images/bg/galaxy.webp');
+  min-height: 100vh;
   // background-attachment: fixed;
 }
+h1,h2,h3,h4,h5,h6,p,strong,b,u,em,i,a {line-height: 1.5;}
 ::-webkit-scrollbar {
   width: 7px;
   background: transparent;
