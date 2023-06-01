@@ -44,12 +44,13 @@ export default function NavBar({isLogin}) {
   /** //redux */
   const router = useRouter();
   function goHome(){
-    if(window.scrollY < 2) {
-      router.push('/')
-    } else {
-      window.scrollTo(0,0); setNavActive(false)
-    }
+    router.push('/')
   }
+
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = '/';
+  };
 
   return (
     <>
@@ -65,7 +66,7 @@ export default function NavBar({isLogin}) {
             isLogin ?
             <>
             <li>
-            <button onClick={() => { signOut() }}>Logout</button>
+            <button onClick={() => { handleSignOut() }}>Logout</button>
             </li>
             </>
             :
@@ -91,7 +92,7 @@ export default function NavBar({isLogin}) {
             isLogin ?
             <>
             <li>
-            <button onClick={() => { signOut() }}>Logout</button>
+            <button onClick={() => { handleSignOut() }}>Logout</button>
             </li>
             </>
             :

@@ -43,7 +43,7 @@ export default function Home() {
 
   // 해당 채팅의 마지막 대화 가져오기
   const getLastChat = async(chatArray:any[],myId:string) => {
-    const arr = [];
+    const arr:any = [];
     console.log(chatArray)
     for(let data of chatArray){
       const uuid = data.uuid
@@ -147,7 +147,9 @@ export default function Home() {
           onMouseEnter={()=>setActiveBlink([true,activeBlink[1]])}
           onMouseLeave={()=>setActiveBlink([false,activeBlink[1]])}
         >
-          <h2 className="title-02" id="intro">chat rooms</h2>
+          <h2 className={`title-02 ${styles['title-02']}`} id="intro">chat rooms
+          <Link href="/joinroom">채팅방 만들기</Link>
+          </h2>
 
           <div className={`ly-flex-wrap mt-50 ${styles['chatroom-box__wrap']}`}>
             {

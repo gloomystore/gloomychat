@@ -5,7 +5,7 @@
   "scripts": {
     "local": "set NODE_ENV=development && next dev -p 3020",
     "dev": "set NODE_ENV=development && next dev -p 3020",
-    "stg": "set NODE_ENV=test && next dev -p 3020",
+    "stg": "set NODE_ENV=test && node server.js",
     "build": "next build",
     "start": "next start -p 3020",
     "lint": "next lint"
@@ -20,7 +20,7 @@
     "bcrypt": "^5.1.0",
     "eslint": "8.41.0",
     "eslint-config-next": "13.4.4",
-    "gloomydate": "^1.1.2",
+    "gloomydate": "^1.1.5",
     "next": "13.4.4",
     "next-auth": "^4.22.1",
     "next-redux-wrapper": "^8.1.0",
@@ -29,7 +29,6 @@
     "react-redux": "^8.0.5",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
-    "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "typescript": "5.0.4"
   },

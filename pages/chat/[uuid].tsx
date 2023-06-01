@@ -1,14 +1,15 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import NavBar from '@/components/NavBar'
-import Footer from '@/components/Footer'
 import styles from '@/styles/chat.module.scss'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import axios from 'axios';
 import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+
+// * Socket.io
+import {io} from "socket.io-client";
+import VideoCall from '@/components/VideoCall'
 
 type Props = {
   uuid: string;
@@ -27,10 +28,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx: GetServ
 };
 
 
-export default function chat({uuid}:{uuid:string}) {
+export default function Chat({uuid}:{uuid:string}) {
   // nextauth 로그인
- const [isLogin,setIsLogin] = useState(false)
- let session  = useSession();
+  let session  = useSession();
+  const [isLogin,setIsLogin] = useState(!(session.status === 'unauthenticated'))
+
  // 로그인하면 채팅 데이터 로딩
  const [chatData, setChatData]:[{
     _id: string,
@@ -128,6 +130,7 @@ export default function chat({uuid}:{uuid:string}) {
       setChats(chatsData.chat)
       console.log(chatsData)
       console.log(myData)
+      console.log(session)
     })()
    } else if(session.status === 'loading') {
     return
@@ -143,10 +146,56 @@ export default function chat({uuid}:{uuid:string}) {
     const val = e.currentTarget.value
     setInputValue(val)
   }
-  function sendMessage(e){
-    console.log(e.target)
-    console.log(inputValue)
+  function sendMessage(e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLInputElement>) {
+    if(!inputValue) return
+    onSocket()
   }
+  // let interval = 3000;
+  const chatRef = useRef<HTMLDivElement>(null);
+  useCallback(()=>{
+  },[])
+  
+  const newTime = ()=> {
+    return Number(new Date())
+  }
+  // socket.on('hi', (data) => console.log(data)); // 서버 -> 클라이언트
+  const socket = useMemo(()=>{
+    return io(`${process.env.NEXT_PUBLIC_API_URL}`);
+  },[])
+  const onSocket = useCallback(()=>{
+    socket.emit('msgSend', {
+      parentId:uuid,
+      time: newTime(),
+      msg: inputValue,
+      email: myData.email
+    });
+    setInputValue('')
+  },[inputValue])
+
+  useEffect(() => {
+    const handleBroadcast = (data:any) => {
+      if(data.chat){
+        setChats(data.chat)
+      }
+      // 수신한 데이터를 원하는 대로 처리합니다.
+      // 예: 화면에 표시하거나 다른 동작 수행 등
+    };
+    socket.on('broadcast', handleBroadcast);
+    socket.emit('joinroom', {uuid});
+    return () => {
+      socket.off('broadcast', handleBroadcast);
+      socket.emit('leaveroom', {uuid}); // 룸에서 나가는 이벤트
+    };
+  }, []);
+  useEffect(() => {
+    chatRef.current?.scrollTo(0,chatRef.current?.scrollHeight)
+  }, [chats]);
+
+
+
+  // 화상통화
+  
+
 
   return (
     <>
@@ -169,11 +218,13 @@ export default function chat({uuid}:{uuid:string}) {
           <h2 className="title-03 mt-0" id="intro">{chatData.name}</h2>
           <div className={`mt-0 ${styles['chat-box']}`}>
             <article className={`${styles['video-box']}`}>
-              <video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" 
+              {/* <video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" 
                 // autoPlay
-              />
+                muted
+              /> */}
+              <VideoCall uuid={uuid} name={session?.data?.user?.name} />
             </article>
-            <article className={`${styles['chat-box__chats']} mt-30`}>
+            <article className={`${styles['chat-box__chats']} mt-30`} ref={chatRef}>
             {
               chats.length > 0 &&
 
@@ -215,7 +266,7 @@ export default function chat({uuid}:{uuid:string}) {
               </>
             }
             </article>
-            <article className={`${styles['chat-box__input']} mt-10 pl-10 pr-10`}>
+            <article className={`${styles['chat-box__input']} pl-10 pr-10`}>
               <input type="text" onChange={onInput} value={inputValue} onKeyDown={e=> e.key === 'Enter' && sendMessage(e)} />
               <button onClick={sendMessage}>보내기</button>
             </article>

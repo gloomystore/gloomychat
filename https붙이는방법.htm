@@ -1,0 +1,80 @@
+mkcert
+mkcert를 전역적으로 설치합니다.
+
+1. npm install -g mkcert
+이제 CA(Certificate Authority)를 만들겠습니다.
+
+2. mkcert create-ca
+명령을 입력하면 실행한 곳에서 두가지 파일이 생성됩니다.
+ca.key - CA private key
+ca.crt - CA certificate
+
+원래 Private Key는 안전한 위치에 저장하는 것이 중요하지만 설명하기 위해 위치를 변경하지 않겠습니다.
+CA를 생성했으므로 다음 단계는 localhost 도메인의 인증서를 만들어야합니다.
+아래와 같이 인증서를 만들 수 있습니다.
+
+3. mkcert create-cert
+원래 create-cert에 대한 다양한 옵션이 있습니다.
+다만 도메인이 localhost일 경우 다른 옵션 없이 기본 값 옵션으로 명령을 수행해도 괜찮습니다.
+이렇게해서 인증서(cert.crt)와 개인키(cert.key)가 생성되었습니다.
+
+이제 필요한 파일이 있으므로 다음 단계는 cert.key 와 cery.crt 파일을 프로젝트에 복사합니다.
+
+
+4. root에 놔둬도 되고, projectRoot/.cert/에 옮겨도 됨.
+
+
+5. /projectRoot/ 에 server.js 제작
+
+
+const https = require('https');
+const fs = require('fs');
+const { createServer } = require('http');
+const { parse } = require('url');
+const next = require('next');
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+const certPath = './.cert/cert.crt';
+const keyPath = './.cert/cert.key';
+
+const cert = fs.readFileSync(certPath);
+const key = fs.readFileSync(keyPath);
+const httpsOptions = { cert, key };
+
+const app = next({ dev: process.env.NODE_ENV !== 'production' });
+const handle = app.getRequestHandler();
+
+app.prepare().then(() => {
+  createServer((req, res) => {
+    const parsedUrl = parse(req.url, true);
+    handle(req, res, parsedUrl);
+  }).listen(3021, () => {
+    console.log('> Ready on https://localhost:3021');
+  });
+
+  https.createServer(httpsOptions, (req, res) => {
+    const parsedUrl = parse(req.url, true);
+    handle(req, res, parsedUrl);
+  }).listen(3020, () => {
+    console.log(`> Ready on ${process.env.NEXT_PUBLIC_NEXT_API_URL}`);
+  });
+});
+
+
+6. ts-node server.js로 시작해도 되고, 
+npm run stg로 시작하기 위해 packge.json을 수정해도 됨
+
+
+"scripts": {
+    "local": "set NODE_ENV=development && next dev -p 3020",
+    "dev": "set NODE_ENV=development && next dev -p 3020",
+    "stg": "set NODE_ENV=test && node server.js",
+    "build": "next build",
+    "start": "next start -p 3020",
+    "lint": "next lint"
+  },
+
+
+끝
+
+
+
