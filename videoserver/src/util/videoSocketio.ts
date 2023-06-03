@@ -78,7 +78,6 @@ const addSocket = (io, server, connectToDatabase) => {
     });
 
     socket.on("join_room", (data) => {
-      console.log('users',users)
       if (users[data.room]) {
         const currentRoomLength = users[data.room].length;
         if (currentRoomLength === 10) {
@@ -101,14 +100,17 @@ const addSocket = (io, server, connectToDatabase) => {
     });
 
     socket.on("offer", (sdp, roomName) => {
+      console.log('socket.on offer')
       socket.to(roomName).emit("getOffer", sdp);
     });
 
     socket.on("answer", (sdp, roomName) => {
+      console.log('socket.on answer')
       socket.to(roomName).emit("getAnswer", sdp);
     });
 
     socket.on("candidate", (candidate, roomName) => {
+      console.log('socket.on candidate')
       socket.to(roomName).emit("getCandidate", candidate);
     });
 

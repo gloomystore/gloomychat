@@ -5,7 +5,7 @@ import routes from './routes';
 import http from 'http';
 
 const app = express();
-const port = 8800;
+const port = 8801;
 const server = http.createServer(app);
 
 app.use(cors({
@@ -35,8 +35,10 @@ app.get('/api/users', async (req: Request, res: Response) => {
 
 /**채팅 기능 */
 const io = require("socket.io");
-import addChatSocket from './util/chatSocketio';
+import addChatSocket from './util/videoSocketio';
 addChatSocket(io,server,connectToDatabase)
+// import addVideoSocket from './util/videoSocketio';
+// addVideoSocket(io,server)
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);

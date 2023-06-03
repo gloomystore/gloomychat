@@ -160,7 +160,11 @@ export default function Chat({uuid}:{uuid:string}) {
   }
   // socket.on('hi', (data) => console.log(data)); // 서버 -> 클라이언트
   const socket = useMemo(()=>{
-    return io(`${process.env.NEXT_PUBLIC_API_URL}`);
+    return io(`${process.env.NEXT_PUBLIC_API_URL}`,{
+      reconnectionAttempts: 20,
+      reconnectionDelay: 2000, // 2초
+      reconnectionDelayMax: 2000, // 2초
+    });
   },[])
   const onSocket = useCallback(()=>{
     socket.emit('msgSend', {
@@ -222,7 +226,11 @@ export default function Chat({uuid}:{uuid:string}) {
                 // autoPlay
                 muted
               /> */}
-              <VideoCall uuid={uuid} name={session?.data?.user?.name} />
+              {
+                socket.connected === true &&
+                <VideoCall uuid={uuid} />
+              }
+              
             </article>
             <article className={`${styles['chat-box__chats']} mt-30`} ref={chatRef}>
             {
