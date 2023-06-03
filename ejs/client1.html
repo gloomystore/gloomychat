@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>sample</title>
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <video id="local_video" autoplay></video>
+  <video id="remote_video" autoplay></video>
+</body>
+
+  <script type="text/javascript">
+
+    let localVideo = document.getElementById('local_video');
+    let RemoteVideo = document.getElementById('remote_video');
+
+    var peer = new Peer('client1', {
+      host: 'videoserver.gloomy-store.com',
+      port: 443,
+      path: '/'
+    });
+
+    navigator.mediaDevices.getUserMedia({video : true, audio : true})
+    .then(function (stream) {
+      localVideo.srcObject = stream;
+      let call = peer.call('client2',stream);
+      if (call != null) {
+        call.on('stream', function(stream) {
+               RemoteVideo.srcObject = stream;
+        });
+      }
+    }).catch(function (error) {
+      console.log(error);
+    });
+
+  </script>
+</html>

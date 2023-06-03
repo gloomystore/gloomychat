@@ -1,158 +1,65 @@
-'use client';
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useRef } from "react";
-import { Socket } from "socket.io-client";
+import { useEffect, useRef } from "react";
 
-const VideoCall = ({uuid,socket}:{uuid:string,socket:Socket}) => {
-  const socketRef = useRef<Socket>();
-  const myVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const pcRef = useRef<RTCPeerConnection>();
-  const router = useRouter()
-  const getMedia = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-  
-      if (myVideoRef.current) {
-        myVideoRef.current.srcObject = stream;
-      }
-      if (!(pcRef.current && socketRef.current)) {
-        return;
-      }
-      stream.getTracks().forEach((track) => {
-        if (!pcRef.current) {
-          return;
-        }
-        pcRef.current.addTrack(track, stream);
-      });
-  
-      pcRef.current.onicecandidate = (e) => {
-        if (e.candidate) {
-          if (!socketRef.current) {
-            return;
-          }
-          console.log("recv candidate");
-          socketRef.current.emit("candidate", e.candidate, uuid);
-        }
-      };
-  
-      pcRef.current.ontrack = (e) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = e.streams[0];
-        }
-      };
-      
-      pcRef.current.onconnectionstatechange = (event) => {
-        if (pcRef.current && pcRef.current.connectionState === "disconnected") {
-          // 처리 로직 추가: 사용자2의 인터넷 연결이 끊어졌을 때
-          console.log("사용자2의 인터넷 연결이 끊어졌습니다.");
-          router.reload();
-        }
-      };
-    } catch (e) {
-      console.error(e);
-    }
-  }, [myVideoRef, pcRef, remoteVideoRef, router, socketRef, uuid]);
-  
-  const createOffer = useCallback(async () => {
-    console.log("create Offer");
-    if (!(pcRef.current && socketRef.current)) {
-      return;
-    }
-    try {
-      const sdp = await pcRef.current.createOffer();
-      pcRef.current.setLocalDescription(sdp);
-      console.log("create Offer:sent the offer");
-      socketRef.current.emit("offer", sdp, uuid);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [pcRef, socketRef, uuid]);
-  
-  const createAnswer = useCallback(async (sdp: RTCSessionDescription) => {
-    console.log("createAnswer");
-    if (!(pcRef.current && socketRef.current)) {
-      return;
-    }
-  
-    try {
-      pcRef.current.setRemoteDescription(sdp);
-      const answerSdp = await pcRef.current.createAnswer();
-      pcRef.current.setLocalDescription(answerSdp);
-  
-      console.log("sent the answer");
-      socketRef.current.emit("answer", answerSdp, uuid);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [pcRef, socketRef, uuid]);
-
+const VideoCall = ({ uuid, mail, host, guest }: { uuid: string; mail: { myMail: string; partnerMail: string }, host:string, guest: string }) => {
+  const router = useRouter();
+  const remoteVideo = useRef<HTMLVideoElement>(null);
+  const myVideo = useRef<HTMLVideoElement>(null);
+  const { myMail, partnerMail } = mail;
 
   useEffect(() => {
-    socketRef.current = socket;
+    const loadPeer = async () => {
+      const Peer = (await import('peerjs')).default;
+      const peer = new Peer(myMail, {
+        host: "videoserver.gloomy-store.com",
+        port: 443,
+        path: "/",
+      });
 
-    pcRef.current = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" }, // 변경된 부분: STUN 서버 추가
-      ],
-    });
+      peer.on('call', function (call) {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .then(function (stream) {
+            if (myVideo.current) myVideo.current.srcObject = stream;
+            call.answer(stream);
+            call.on('stream', function (stream) {
+              if (remoteVideo.current) remoteVideo.current.srcObject = stream;
+            });
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      });
 
-    socketRef.current.on("all_users", (allUsers: Array<{ id: string }>) => {
-      if (allUsers.length > 0) {
-        createOffer();
-      }
-    });
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(function (stream) {
+          if (myVideo.current) myVideo.current.srcObject = stream;
+          let call = peer.call(partnerMail, stream);
+          if (call != null) {
+            call.on('stream', function (stream) {
+              if (remoteVideo.current) remoteVideo.current.srcObject = stream;
+            });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
 
-    socketRef.current.on("getOffer", (sdp: RTCSessionDescription) => {
-      console.log("getOffer");
-      createAnswer(sdp);
-    });
-
-    socketRef.current.on("getAnswer", (sdp: RTCSessionDescription) => {
-      console.log("getAnswer");
-      if (!pcRef.current) {
-        return
-      }
-      pcRef.current.setRemoteDescription(sdp);
-    });
-
-    socketRef.current.on("getCandidate", async (candidate: RTCIceCandidate) => {
-      if (!pcRef.current) {
-        return;
-      }
-      console.log("getCandidate");
-      await pcRef.current.addIceCandidate(candidate);
-    });
-
-    socketRef.current.emit("join_room", {
-      room: uuid,
-    });
-
-    getMedia();
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-      if (pcRef.current) {
-        pcRef.current.close();
-      }
+      // Other logic with the Peer object if needed
     };
-  }, []);
+
+    loadPeer();
+  }, [myMail, partnerMail]);
 
   return (
     <>
       <video
         id="remotevideo"
-        ref={remoteVideoRef}
+        ref={remoteVideo}
         autoPlay
       />
       <video
         id="myvideo"
-        ref={myVideoRef}
+        ref={myVideo}
         autoPlay
       />
     </>

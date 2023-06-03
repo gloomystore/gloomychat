@@ -52,6 +52,8 @@ export default function Chat({uuid}:{uuid:string}) {
     time: '',
   })
 
+  // 내 메일(비디오 컴포넌트에 내 아이디를 넣기위해 따로 뺌, 로딩 확인용도도 추가)
+  const [mail, setMail] = useState({myMail:'',partnerMail:''})
   // 나의 데이터 (사진, 이름)
   const [myData,setMyData]:[{
     name:string,
@@ -125,6 +127,7 @@ export default function Chat({uuid}:{uuid:string}) {
       setChatData(chatroomData)
       const myData = await getUserData(myEmail)
       const partnerData = await getUserData(partnerEmail)
+      setMail({myMail:myEmail,partnerMail:partnerEmail})
       setMyData(myData)
       setPartnerData(partnerData)
       setChats(chatsData.chat)
@@ -227,8 +230,13 @@ export default function Chat({uuid}:{uuid:string}) {
                 muted
               /> */}
               {
-                socket.connected === true &&
-                <VideoCall uuid={uuid} socket={socket} />
+                chatData.host &&
+                <VideoCall 
+                uuid={uuid} 
+                mail={mail}
+                host={chatData.host}
+                guest={chatData.guest}
+                />
               }
               
             </article>
