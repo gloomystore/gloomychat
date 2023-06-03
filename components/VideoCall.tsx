@@ -1,15 +1,14 @@
 'use client';
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef } from "react";
-import { io,Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 
-const VideoCall = ({uuid}:{uuid:string}) => {
+const VideoCall = ({uuid,socket}:{uuid:string,socket:Socket}) => {
   const socketRef = useRef<Socket>();
   const myVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const pcRef = useRef<RTCPeerConnection>();
   const router = useRouter()
-  const socket = io(`${process.env.NEXT_PUBLIC_API_URL}`)
   const getMedia = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({

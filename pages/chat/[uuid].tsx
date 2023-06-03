@@ -228,7 +228,7 @@ export default function Chat({uuid}:{uuid:string}) {
               /> */}
               {
                 socket.connected === true &&
-                <VideoCall uuid={uuid} />
+                <VideoCall uuid={uuid} socket={socket} />
               }
               
             </article>
