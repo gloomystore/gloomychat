@@ -77,41 +77,6 @@ const addSocket = (io, server, connectToDatabase) => {
       socket.leave(uuid);
     });
 
-    socket.on("join_room", (data) => {
-      console.log('users',users)
-      if (users[data.room]) {
-        const currentRoomLength = users[data.room].length;
-        if (currentRoomLength === 10) {
-          socket.emit("room_full");
-          return;
-        }
-      } else {
-        users[data.room] = [];
-      }
-      console.log(users)
-      users[data.room].push({ id: socket.id });
-      socketRoom[socket.id] = data.room;
-
-      socket.join(data.room);
-
-      const others = users[data.room].filter((user) => user.id !== socket.id);
-      if (others.length) {
-        socket.emit("all_users", others);
-      }
-    });
-
-    socket.on("offer", (sdp, roomName) => {
-      socket.to(roomName).emit("getOffer", sdp);
-    });
-
-    socket.on("answer", (sdp, roomName) => {
-      socket.to(roomName).emit("getAnswer", sdp);
-    });
-
-    socket.on("candidate", (candidate, roomName) => {
-      socket.to(roomName).emit("getCandidate", candidate);
-    });
-
     socket.on('disconnect', () => {
       console.log('웹소켓 연결 종료');
       const roomID = socketRoom[socket.id];
