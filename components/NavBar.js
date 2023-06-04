@@ -44,7 +44,8 @@ export default function NavBar({isLogin}) {
   /** //redux */
   const router = useRouter();
   function goHome(){
-    router.push('/')
+    // router.push('/')
+    window.location.href='/';
   }
 
   const handleSignOut = async () => {
