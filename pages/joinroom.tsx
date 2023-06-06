@@ -59,7 +59,8 @@ export default function Chat() {
     setIsLogin(true);
     (async function(){
       const usersData = await getUserData() as any;
-      setUsers(usersData)
+      const filteredData = usersData.filter(e=> e.email !== session?.data?.user?.email)
+      setUsers(filteredData)
       console.log(session.data.user)
       console.log(usersData)
     })()
