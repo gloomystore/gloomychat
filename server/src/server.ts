@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { connectToDatabase } from './db/mongo';
 import cors from 'cors';
-import routes from './routes';
+//import routes from './routes';
 import http from 'http';
 
 const app = express();
@@ -13,7 +13,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(routes);
+//app.use(routes)
 
 app.get('/favicon.ico', (req, res) => res.status(204));
 app.get('/', (req: Request, res: Response) => {
