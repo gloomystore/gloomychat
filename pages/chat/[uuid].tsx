@@ -131,9 +131,9 @@ export default function Chat({uuid}:{uuid:string}) {
       setMyData(myData)
       setPartnerData(partnerData)
       setChats(chatsData.chat)
-      console.log(chatsData)
-      console.log(myData)
-      console.log(session)
+      // console.log(chatsData)
+      // console.log(myData)
+      // console.log(session)
     })()
    } else if(session.status === 'loading') {
     return
@@ -145,6 +145,7 @@ export default function Chat({uuid}:{uuid:string}) {
 
   // 채팅 보내기 기능 관련
   const [inputValue, setInputValue] = useState('')
+  const [meet, setMeet] = useState(false) // 채팅방에 두 명이 모였으면 true
   function onInput(e: React.FormEvent<HTMLInputElement>){
     const val = e.currentTarget.value
     setInputValue(val)
@@ -181,8 +182,17 @@ export default function Chat({uuid}:{uuid:string}) {
 
   useEffect(() => {
     const handleBroadcast = (data:any) => {
-      if(data.chat){
+      if(data.chat){ // 채팅 데이터를 받아온 것이라면
         setChats(data.chat)
+      } else if(data[uuid]) { // 채팅방 구성원을 받아오는 것이라면
+        if(data[uuid].length === 2) { // 인원이 두명이면, 드디어 만났다에 true
+          setMeet(true)
+        } else if(data[uuid].length < 2 && meet) { // 인원이 두명인 과거가 있었는데, 2명 미만으로 줄면 퇴장
+          alert('상대방과의 연결이 끊겼습니다.')
+          window.location.href = '/';
+        } else if(data[uuid].length === 2 && meet){
+          return
+        }
       }
       // 수신한 데이터를 원하는 대로 처리합니다.
       // 예: 화면에 표시하거나 다른 동작 수행 등
@@ -193,7 +203,7 @@ export default function Chat({uuid}:{uuid:string}) {
       socket.off('broadcast', handleBroadcast);
       socket.emit('leaveroom', {uuid}); // 룸에서 나가는 이벤트
     };
-  }, []);
+  }, [meet]);
   useEffect(() => {
     chatRef.current?.scrollTo(0,chatRef.current?.scrollHeight)
   }, [chats]);

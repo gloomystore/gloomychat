@@ -59,7 +59,7 @@ const addSocket = (io, server, connectToDatabase) => {
         socket.emit("all_users", others);
       }
 
-      ioServer.to(uuid).emit('broadcast', data);
+      ioServer.to(uuid).emit('broadcast', users);
     });
 
     socket.on('leaveroom', (data) => {
@@ -88,6 +88,8 @@ const addSocket = (io, server, connectToDatabase) => {
         }
       }
       delete socketRoom[socket.id];
+      //나간거 알려주기
+      ioServer.emit('broadcast', users);
     });
   });
 };
