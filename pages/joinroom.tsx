@@ -82,6 +82,19 @@ export default function Chat() {
     console.log(err);
   }
 };
+
+// 내 채팅 데이터 가져오기
+const fetchChatrooms = async (myId:string) => {
+  try {
+    const res = await axios.get(`/api/chatrooms/get/${myId}`);
+    return [
+      ...res.data,
+    ]
+  } catch (err) {
+    console.log(err);
+  }
+};
+
  // 실제 채팅방 만들기
  async function setChat(parentId:string){
   try {
@@ -95,8 +108,26 @@ export default function Chat() {
     console.log(err);
   }
 };
+
+  type myChatRoom = {
+    guest: string,
+    host: string,
+    name: string,
+    time: string,
+    timestamp: string,
+    uuid: string,
+    _id: string,
+  }[]
   // 채팅 걸기 기능
-  async function joinChat(guest){
+  async function joinChat(guest:string){
+    const myChat = await fetchChatrooms(session.data?.user?.email as string)
+    const isAlreadyChatRoom = myChat?.filter(e => {
+      if(e.guest === guest || e.host === guest) return true
+      else return false
+    })
+    if((isAlreadyChatRoom as myChatRoom).length > 0) {
+      return router.push(`/chat/${(isAlreadyChatRoom as myChatRoom)[0].uuid}`)
+    };
     const name = prompt("채팅방 제목을 입력하세요:");
     if(!name) return alert('제목을 입력해주세요')
     const host = session?.data?.user?.email as string
