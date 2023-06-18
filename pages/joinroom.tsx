@@ -61,8 +61,8 @@ export default function Chat() {
       const usersData = await getUserData() as any;
       const filteredData = usersData.filter(e=> e.email !== session?.data?.user?.email)
       setUsers(filteredData)
-      console.log(session.data.user)
-      console.log(usersData)
+      // console.log(session.data.user)
+      // console.log(usersData)
     })()
    } else if(session.status === 'loading') {
     return

@@ -44,7 +44,7 @@ export default function Home() {
   // 해당 채팅의 마지막 대화 가져오기
   const getLastChat = async(chatArray:any[],myId:string) => {
     const arr:any = [];
-    console.log(chatArray)
+    // console.log(chatArray)
     for(let data of chatArray){
       const uuid = data.uuid
       const getChat = await fetchLastChat(uuid)
